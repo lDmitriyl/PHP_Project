@@ -1,0 +1,36 @@
+x-defaults:
+  network: &network
+    networks:
+      - net
+
+services:
+  php:
+    build: ./docker
+    ports:
+      - 8202:80
+    volumes:
+      - ./:/var/www/html
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    <<: *network
+
+  db:
+    image: mariadb:10.6
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+    <<: *network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    depends_on:
+      - "db"
+    restart: always
+    environment:
+      - PMA_ARBITRARY=1
+    ports:
+      - "8203:80"
+    <<: *network
+
+networks:
+  net:
